@@ -1,6 +1,7 @@
 import express from "express";
 import calculateBmi from "./bmiCalculator.ts";
 import calculateExercises from "./exerciseCalculator.ts";
+import parser from "./utils/parser.ts";
 
 const app = express();
 
@@ -11,26 +12,14 @@ app.get("/hello", (_req, res) => {
 });
 
 app.post("/exercises", (req, res) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-  const body: any = req.body;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  if (body.daily_exercises === undefined || body.target === undefined) {
-    res.status(400).json({ error: "parameters missing" });
-    return;
+  try {
+    const { daily_exercises, target } = parser(req.body);
+    res.json(calculateExercises(daily_exercises, target));
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "malformatted parameters",
+    });
   }
-  if (
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    !Array.isArray(body.daily_exercises) ||
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    !body.daily_exercises.every((value) => typeof value === "number") ||
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    typeof body.target !== "number"
-  ) {
-    res.status(400).json({ error: "malformatted parameters" });
-    return;
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
-  res.json(calculateExercises(body.daily_exercises, body.target));
 });
 
 app.get("/bmi", (req, res) => {
