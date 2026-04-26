@@ -1,6 +1,6 @@
 import express from "express";
-import diagRouter from "./src/routes/diagnoses.ts";
-import patientRouter from "./src/routes/patients.ts";
+import diagRouter from "./routes/diagnoses.ts";
+import patientRouter from "./routes/patients.ts";
 
 const app = express();
 app.use(express.json());

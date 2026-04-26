@@ -14,3 +14,12 @@ export type Patient = {
 };
 
 export type PatientNonSensitive = Omit<Patient, "ssn">;
+export type NewPatient = Omit<Patient, "id">;
+
+export const Gender = {
+  Male: "male",
+  Female: "female",
+  Other: "other",
+} as const;
+
+export type Gender = (typeof Gender)[keyof typeof Gender];
