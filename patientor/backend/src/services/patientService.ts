@@ -14,12 +14,17 @@ const getPatients = (): PatientNonSensitive[] => {
 };
 
 const addPatient = (patient: NewPatient): Patient => {
-  const newEntry: Patient = { id: crypto.randomUUID(), ...patient };
+  const newEntry: Patient = { id: crypto.randomUUID(), ...patient, entries: [] };
   patients.push(newEntry);
   return newEntry;
+};
+
+const getPatientById = (id: string): Patient | undefined => {
+  return patients.find((patient) => patient.id === id);
 };
 
 export default {
   getPatients,
   addPatient,
+  getPatientById,
 };
