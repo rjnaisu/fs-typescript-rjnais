@@ -5,6 +5,9 @@ import {
   type Patient,
   NewPatientSchema,
   type PatientNonSensitive,
+  NewEntrySchema,
+  type EntryWithoutId,
+  type Entry,
 } from "../types.ts";
 import { z } from "zod";
 
@@ -13,6 +16,15 @@ const router = express.Router();
 const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
   try {
     req.body = NewPatientSchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+const newEntryParser = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    req.body = NewEntrySchema.parse(req.body);
     next();
   } catch (error: unknown) {
     next(error);
@@ -47,6 +59,22 @@ router.post(
   (req: Request<unknown, unknown, NewPatient>, res: Response<Patient>) => {
     const addedPatient = patientService.addPatient(req.body);
     res.json(addedPatient);
+  },
+);
+
+router.post(
+  "/:id/entries",
+  newEntryParser,
+  (
+    req: Request<{ id: string }, unknown, EntryWithoutId>,
+    res: Response<Entry | { error: string }>,
+  ) => {
+    const addedEntry = patientService.addEntry(req.params.id, req.body);
+    if (!addedEntry) {
+      res.status(404).send({ error: "Patient not found" });
+      return;
+    }
+    res.json(addedEntry);
   },
 );
 

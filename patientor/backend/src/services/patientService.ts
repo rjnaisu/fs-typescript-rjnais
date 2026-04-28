@@ -1,4 +1,4 @@
-import type { Patient, PatientNonSensitive, NewPatient } from "../types.ts";
+import type { Patient, PatientNonSensitive, NewPatient, EntryWithoutId, Entry } from "../types.ts";
 import patientData from "../../data/patients.ts";
 
 const patients: Patient[] = patientData;
@@ -23,8 +23,20 @@ const getPatientById = (id: string): Patient | undefined => {
   return patients.find((patient) => patient.id === id);
 };
 
+const addEntry = (patientId: string, entryData: EntryWithoutId): Entry | undefined => {
+  const patient = getPatientById(patientId);
+  if (!patient) {
+    return undefined;
+  }
+
+  const entryNew: Entry = { id: crypto.randomUUID(), ...entryData };
+  patient.entries.push(entryNew);
+  return entryNew;
+};
+
 export default {
   getPatients,
   addPatient,
   getPatientById,
+  addEntry,
 };
