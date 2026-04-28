@@ -10,30 +10,34 @@ import {
   Paper,
 } from "@mui/material";
 
-import type { Entry, Patient } from "../types";
+import type { Diagnosis, Entry, Patient } from "../types";
 import { useParams } from "react-router-dom";
 import patientService from "../services/patients";
+import diagnosisService from "../services/diagnosis";
 
 const PatientDetails = () => {
   const [patient, setPatient] = useState<Patient>();
   const [error, setError] = useState<string>();
   const { id } = useParams<{ id: string }>();
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 
   useEffect(() => {
     if (!id) {
       return;
     }
 
-    const fetchPatient = async () => {
+    const fetchData = async () => {
       try {
         const patient = await patientService.findById(id);
+        const diagnoses = await diagnosisService.getAll();
         setPatient(patient);
+        setDiagnoses(diagnoses);
       } catch {
         setError("Patient not found");
       }
     };
 
-    void fetchPatient();
+    void fetchData();
   }, [id]);
 
   if (!id) {
@@ -59,6 +63,8 @@ const PatientDetails = () => {
       </div>
     );
   }
+
+  const diagnosisGetName = Object.fromEntries(diagnoses.map((d) => [d.code, d]));
 
   const renderEntryDetails = (entry: Entry) => {
     switch (entry.type) {
@@ -89,7 +95,7 @@ const PatientDetails = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "1fr 2fr" },
+          gridTemplateColumns: { xs: "1fr", md: "0.6fr 2fr" },
           gap: 2,
           alignItems: "start",
         }}
@@ -148,7 +154,12 @@ const PatientDetails = () => {
                   <TableCell>{entry.specialist}</TableCell>
                   <TableCell>
                     {entry.diagnosisCodes && entry.diagnosisCodes.length > 0
-                      ? entry.diagnosisCodes?.map((code) => <div key={code}>{code}</div>)
+                      ? entry.diagnosisCodes?.map((code) => (
+                          <div key={code}>
+                            {code}
+                            {diagnosisGetName[code] ? `- ${diagnosisGetName[code].name}` : ""}
+                          </div>
+                        ))
                       : "None"}
                   </TableCell>
                   <TableCell>{renderEntryDetails(entry)}</TableCell>
