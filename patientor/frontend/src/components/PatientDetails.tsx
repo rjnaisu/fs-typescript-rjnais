@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, Table, TableHead, Typography, TableCell, TableRow, TableBody } from "@mui/material";
 
-import type { Patient } from "../types";
+import type { Entry, Patient } from "../types";
 import { useParams } from "react-router-dom";
 import patientService from "../services/patients";
 
@@ -51,6 +51,30 @@ const PatientDetails = () => {
     );
   }
 
+  const renderEntryDetails = (entry: Entry) => {
+    switch (entry.type) {
+      case "HealthCheck":
+        return <>Health rating: {entry.healthCheckRating}</>;
+      case "Hospital":
+        return (
+          <>
+            Discharged: {entry.discharge.date} {entry.discharge.criteria}
+          </>
+        );
+      case "OccupationalHealthcare":
+        return (
+          <>
+            Employer: {entry.employerName}
+            {entry.sickLeave && (
+              <div>
+                Sick leave: {entry.sickLeave.startDate} - {entry.sickLeave.endDate}
+              </div>
+            )}
+          </>
+        );
+    }
+  };
+
   return (
     <div className="patient-details">
       <Box>
@@ -66,7 +90,6 @@ const PatientDetails = () => {
             <TableCell>SSN</TableCell>
             <TableCell>Gender</TableCell>
             <TableCell>Occupation</TableCell>
-            <TableCell>Entries</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -76,10 +99,39 @@ const PatientDetails = () => {
             <TableCell>{patient.ssn}</TableCell>
             <TableCell>{patient.gender}</TableCell>
             <TableCell>{patient.occupation}</TableCell>
-            <TableCell>
-              {patient.entries.length === 0 ? "No entries" : patient.entries.length}
-            </TableCell>
           </TableRow>
+        </TableBody>
+      </Table>
+      <Box>
+        <Typography align="center" variant="h6">
+          Entries
+        </Typography>
+      </Box>
+
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Date</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Specialist</TableCell>
+            <TableCell>Diagnosis</TableCell>
+            <TableCell>Details</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {patient.entries.map((entry) => (
+            <TableRow key={entry.id}>
+              <TableCell>{entry.date}</TableCell>
+              <TableCell>{entry.description}</TableCell>
+              <TableCell>{entry.specialist}</TableCell>
+              <TableCell>
+                {entry.diagnosisCodes && entry.diagnosisCodes.length > 0
+                  ? entry.diagnosisCodes?.map((code) => <div key={code}>{code}</div>)
+                  : "None"}
+              </TableCell>
+              <TableCell>{renderEntryDetails(entry)}</TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>
