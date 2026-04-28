@@ -49,17 +49,20 @@ const HealthCheckRating = {
 
 type HealthCheckRating = (typeof HealthCheckRating)[keyof typeof HealthCheckRating];
 
-export const HealthCheckRatingSchema = z.union([
-  z.literal(HealthCheckRating.Healthy),
-  z.literal(HealthCheckRating.LowRisk),
-  z.literal(HealthCheckRating.HighRisk),
-  z.literal(HealthCheckRating.CriticalRisk),
-]);
+export const HealthCheckRatingSchema = z.union(
+  [
+    z.literal(HealthCheckRating.Healthy),
+    z.literal(HealthCheckRating.LowRisk),
+    z.literal(HealthCheckRating.HighRisk),
+    z.literal(HealthCheckRating.CriticalRisk),
+  ],
+  { error: "Health check rating must be selected" },
+);
 
 const BaseEntrySchema = z.object({
-  description: z.string().trim().min(1),
-  date: z.iso.date(),
-  specialist: z.string().trim().min(1),
+  description: z.string().trim().min(1, "Description is required"),
+  date: z.iso.date("Date must be in YYYY-MM-DD format"),
+  specialist: z.string().trim().min(1, "Specialist is required"),
   diagnosisCodes: z.array(z.string()).optional(),
 });
 
@@ -71,15 +74,20 @@ const HealthCheckEntrySchema = BaseEntrySchema.extend({
 const HospitalEntrySchema = BaseEntrySchema.extend({
   type: z.literal("Hospital"),
   discharge: z.object({
-    date: z.iso.date(),
-    criteria: z.string(),
+    date: z.iso.date("Discharge date must be in YYYY-MM-DD format"),
+    criteria: z.string().trim().min(1, "Discharge criteria is required"),
   }),
 });
 
 const OccupationalHealthcareEntrySchema = BaseEntrySchema.extend({
   type: z.literal("OccupationalHealthcare"),
-  employerName: z.string().trim().min(1),
-  sickLeave: z.object({ startDate: z.iso.date(), endDate: z.iso.date() }).optional(),
+  employerName: z.string().trim().min(1, "Employer name is required"),
+  sickLeave: z
+    .object({
+      startDate: z.iso.date("Sick leave start date must be in YYYY-MM-DD format"),
+      endDate: z.iso.date("Sick leave end date must be in YYYY-MM-DD format"),
+    })
+    .optional(),
 });
 
 export const NewEntrySchema = z.discriminatedUnion("type", [
