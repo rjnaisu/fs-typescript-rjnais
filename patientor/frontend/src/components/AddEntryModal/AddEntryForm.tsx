@@ -121,12 +121,6 @@ const AddEntryForm = ({ onCancel, onSubmit, diagnoses }: Props) => {
             value={specialist}
             onChange={({ target }) => setSpecialist(target.value)}
           />
-          {/* <TextField
-            label="Diagnosis Codes (comma-separated)"
-            fullWidth
-            value={diagnosisCodes}
-            onChange={({ target }) => setDiagnosisCodes(target.value)}
-          /> */}
           <FormControl fullWidth>
             <InputLabel id="diagnosis-codes-label">Diagnosis Codes (comma-separated)</InputLabel>
             <Select
